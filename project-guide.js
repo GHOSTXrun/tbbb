@@ -178,3 +178,171 @@
   if (document.readyState === 'complete') initialize();
   else window.addEventListener('load', initialize, { once: true });
 })();
+
+(() => {
+  function bootArchiveEffects() {
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function reveal(element) {
+      const line = element.firstElementChild;
+      const letters = line ? Array.from(line.childNodes) : [];
+      const hiddenLetters = letters.filter((letter) => letter.nodeType === Node.ELEMENT_NODE && letter.style.opacity === '0.12');
+      if (!hiddenLetters.length) return;
+      const duration = Math.min(1100, 260 + 22 * letters.length);
+      if (reducedMotion) {
+        hiddenLetters.forEach((letter) => { letter.style.opacity = '1'; });
+        return;
+      }
+
+      const started = performance.now();
+      let completed = 0;
+      let scanning = [];
+      function animate(now) {
+        if (!element.isConnected) return;
+        const elapsed = Math.min(1, (now - started) / duration);
+        const position = (1 - (1 - elapsed) ** 2) * (letters.length + 3);
+        for (const bar of scanning) bar.remove();
+        scanning = [];
+        const revealed = Math.max(0, Math.min(letters.length, Math.ceil(position - 2)));
+        for (; completed < revealed; completed++) {
+          const letter = letters[completed];
+          if (letter.nodeType === Node.ELEMENT_NODE) letter.style.opacity = '1';
+        }
+        for (let index = revealed; index < Math.min(letters.length, Math.ceil(position)); index++) {
+          const letter = letters[index];
+          if (letter.nodeType !== Node.ELEMENT_NODE) continue;
+          letter.style.position = 'relative';
+          letter.style.opacity = '0.55';
+          const bar = document.createElement('span');
+          bar.setAttribute('aria-hidden', 'true');
+          bar.style.cssText = 'position:absolute;inset-inline:0;bottom:.08em;height:.09em;background:var(--color-signal);pointer-events:none';
+          letter.append(bar);
+          scanning.push(bar);
+        }
+        if (elapsed < 1) requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        reveal(entry.target);
+      }
+    }, { rootMargin: '0px 0px -8% 0px' });
+    for (const element of document.querySelectorAll('main [aria-label]')) {
+      const line = element.firstElementChild;
+      if (line?.getAttribute('aria-hidden') === 'true' && line.querySelector(':scope > span[style="opacity:0.12"]')) {
+        observer.observe(element);
+      }
+    }
+
+    function drawBackground(original, index) {
+      const initialWidth = original.width;
+      const initialHeight = original.height;
+      if (original.hasAttribute('width') || original.hasAttribute('height')) return;
+      const canvas = original.cloneNode();
+      const context = canvas.getContext('2d');
+      if (!context) return;
+      canvas.dataset.kyvexaPixelField = 'fallback';
+      Object.assign(canvas.style, { position: 'absolute', inset: '0' });
+      original.before(canvas);
+      const cell = index === 0 ? 14 : 12;
+      const density = index === 0 ? 0.06 : 0.1;
+      let columns = 0;
+      let rows = 0;
+      let flicker = [];
+      let energy = [];
+      let scale = 1;
+      let tick = 0;
+      let frame = 0;
+      let point;
+      let previous;
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        scale = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(rect.width * scale);
+        canvas.height = Math.round(rect.height * scale);
+        columns = Math.ceil(rect.width / cell);
+        rows = Math.ceil(rect.height / cell);
+        energy = new Float32Array(columns * rows);
+        flicker = Uint8Array.from(energy, () => Math.random() < density ? 1 + Math.floor(Math.random() * 3) : 0);
+        if (reducedMotion) render();
+      }
+
+      function move(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        point = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height ? { x, y } : undefined;
+      }
+
+      function addPointerTrail() {
+        if (!point) { previous = undefined; return; }
+        const start = previous || point;
+        const steps = Math.max(1, Math.min(12, Math.ceil(Math.hypot(point.x - start.x, point.y - start.y) / cell)));
+        for (let step = 0; step <= steps; step++) {
+          const column = Math.floor((start.x + (point.x - start.x) * step / steps) / cell);
+          const row = Math.floor((start.y + (point.y - start.y) * step / steps) / cell);
+          for (let y = -2; y <= 2; y++) {
+            for (let x = -2; x <= 2; x++) {
+              const distance = Math.hypot(x, y);
+              const px = column + x;
+              const py = row + y;
+              if (px < 0 || py < 0 || px >= columns || py >= rows || distance > 2.2 || Math.random() <= 0.28 * distance) continue;
+              const position = py * columns + px;
+              energy[position] = Math.min(1, energy[position] + 0.9 - 0.25 * distance);
+            }
+          }
+        }
+        previous = point;
+      }
+
+      function render() {
+        tick++;
+        context.setTransform(scale, 0, 0, scale, 0, 0);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        addPointerTrail();
+        for (let position = 0; position < energy.length; position++) {
+          const active = energy[position];
+          if (active > 0.02) {
+            context.fillStyle = 'rgba(229,57,53,' + (0.85 * active).toFixed(3) + ')';
+            energy[position] *= 0.94;
+          } else if (flicker[position]) {
+            const pulse = reducedMotion ? 1 : 0.55 + 0.45 * Math.sin(0.02 * tick + 1.7 * position);
+            context.fillStyle = 'rgba(243,243,241,' + (0.035 * flicker[position] * pulse).toFixed(3) + ')';
+          } else {
+            continue;
+          }
+          context.fillRect(position % columns * cell + 2, Math.floor(position / columns) * cell + 2, cell - 4, cell - 4);
+        }
+        if (!reducedMotion) frame = requestAnimationFrame(render);
+      }
+
+      const resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(canvas);
+      if (!reducedMotion) {
+        window.addEventListener('pointermove', move, { passive: true });
+        frame = requestAnimationFrame(render);
+      }
+      resize();
+      const monitor = setInterval(() => {
+        if (original.isConnected && original.width === initialWidth && original.height === initialHeight &&
+            !original.hasAttribute('width') && !original.hasAttribute('height')) return;
+        clearInterval(monitor);
+        cancelAnimationFrame(frame);
+        resizeObserver.disconnect();
+        window.removeEventListener('pointermove', move);
+        canvas.remove();
+      }, 1500);
+    }
+
+    [...document.querySelectorAll('main canvas.pointer-events-none')].forEach(drawBackground);
+  }
+
+  // Give the original React effects the first chance to start.
+  if (document.readyState === 'complete') setTimeout(bootArchiveEffects, 400);
+  else window.addEventListener('load', () => setTimeout(bootArchiveEffects, 400), { once: true });
+})();
