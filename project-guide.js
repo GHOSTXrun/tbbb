@@ -174,9 +174,46 @@
     main.insertAdjacentElement('afterend', section);
   }
 
+  async function refreshContractAddress() {
+    const label = document.querySelector('header .kyvexa-ca');
+    if (!label || label.tagName === 'BUTTON') return;
+    try {
+      const url = new URL('ca.json', site);
+      url.searchParams.set('v', String(Math.floor(Date.now() / 12000)));
+      const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+      if (!response.ok) throw new Error('CA configuration unavailable');
+      const { address } = await response.json();
+      if (typeof address === 'string' && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'kyvexa-ca chip';
+        button.translate = false;
+        button.title = address;
+        button.setAttribute('aria-label', 'Copy contract address: ' + address);
+        const shortAddress = 'CA: ' + address.slice(0, 5) + '…' + address.slice(-5);
+        button.textContent = shortAddress;
+        button.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(address);
+            button.textContent = 'CA copied';
+          } catch {
+            button.textContent = address;
+          }
+          setTimeout(() => { button.textContent = shortAddress; }, 1800);
+        });
+        label.replaceWith(button);
+        return;
+      }
+    } catch {
+      // Keep the placeholder visible while the config is unavailable.
+    }
+    setTimeout(refreshContractAddress, 12000);
+  }
+
   function initialize() {
     applyBrand();
     addContent();
+    refreshContractAddress();
   }
 
   if (document.readyState === 'complete') initialize();
