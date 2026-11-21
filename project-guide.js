@@ -92,7 +92,7 @@
     home?.setAttribute('aria-label', 'KYVEXA home');
     for (const area of [home, document.querySelector('footer')]) {
       if (!area) continue;
-      const wordmark = [...area.querySelectorAll('span')].find((item) => item.textContent.trim() === 'NULL');
+      const wordmark = [...area.querySelectorAll('span')].find((item) => /^(?:NULL|KYVEXA)$/.test(item.textContent.trim()));
       if (!wordmark) continue;
       const previousMark = wordmark.previousElementSibling;
       if (previousMark?.matches('svg')) {
@@ -231,7 +231,7 @@
         reveal(entry.target);
       }
     }, { rootMargin: '0px 0px -8% 0px' });
-    for (const element of document.querySelectorAll('main [aria-label]')) {
+    for (const element of document.querySelectorAll('main [aria-label], footer [aria-label]')) {
       const line = element.firstElementChild;
       if (line?.getAttribute('aria-hidden') === 'true' && line.querySelector(':scope > span[style="opacity:0.12"]')) {
         observer.observe(element);
