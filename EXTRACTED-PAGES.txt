@@ -1,0 +1,13 @@
+/ -> pages/index.html
+/launch -> pages/launch/index.html
+/explore -> pages/explore/index.html
+/vault -> pages/vault/index.html
+/trade -> pages/trade/index.html
+/p2p -> pages/p2p/index.html
+/how-it-works -> pages/how-it-works/index.html
+/docs -> pages/docs/index.html
+/security -> pages/security/index.html
+/terms -> pages/terms/index.html
+/launch/3CxAh5Kih6B34S6E7fADG69L5kZmxTntr1tPCko6824m -> pages/launch/3CxAh5Kih6B34S6E7fADG69L5kZmxTntr1tPCko6824m/index.html
+/launch/9bZqxNQ1CjQPWa5pYenqeh1Rnyvke5Mft9AMUGzxrUh6 -> pages/launch/9bZqxNQ1CjQPWa5pYenqeh1Rnyvke5Mft9AMUGzxrUh6/index.html
+/launch/3Gu7hLMXSQDyXRq8AKF75HgAwWUDvmNyFV7sCfTmHeBH -> pages/launch/3Gu7hLMXSQDyXRq8AKF75HgAwWUDvmNyFV7sCfTmHeBH/index.html
