@@ -113,7 +113,11 @@
       button.replaceWith(label);
     }
     for (const link of document.querySelectorAll('header a, footer a')) {
-      if (link.href === 'https://x.com/nullcrypted') link.hidden = true;
+      if (link.href !== 'https://x.com/nullcrypted' && link.href !== 'https://x.com/KYVEXAfun') continue;
+      link.href = 'https://x.com/KYVEXAfun';
+      link.hidden = false;
+      link.classList.remove('hidden');
+      link.classList.add('inline-flex');
     }
     const text = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     while (text.nextNode()) {
