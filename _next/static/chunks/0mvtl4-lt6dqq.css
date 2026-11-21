@@ -15,3 +15,10 @@ header a[aria-label$=" home"] > span > svg[viewBox="0 0 16 16"] > *,
 footer svg[viewBox="0 0 16 16"]:has(+ span) > * { display: none; }
 header a[aria-label$=" home"] img.kyvexa-logo,
 footer img.kyvexa-logo { width: 36px; height: 36px; flex: 0 0 36px; }
+
+main canvas + div > svg[width="96"][height="96"][viewBox="0 0 16 16"] {
+  background: url("../../../kyvexa-logo.png") center / 132% no-repeat;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 22px #ff98004d);
+}
+main canvas + div > svg[width="96"][height="96"][viewBox="0 0 16 16"] > * { display: none; }
