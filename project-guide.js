@@ -115,7 +115,8 @@
       const label = document.createElement('span');
       label.className = 'kyvexa-ca';
       label.translate = false;
-      label.textContent = 'CA: TBA';
+      label.dataset.kyvexaContract = 'DsXdjeeFCakE7zk9XdQLr1WUXZ6XPXMnak3PziFZpump';
+      label.textContent = 'CA: DsXdj…Zpump';
       button.replaceWith(label);
     }
     for (const link of document.querySelectorAll('header a, footer a')) {
