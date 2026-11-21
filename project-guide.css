@@ -1,0 +1,35 @@
+#project-guide { box-sizing: border-box; width: min(80rem, calc(100% - 2rem)); margin: 3rem auto; padding: clamp(1rem, 4vw, 2rem); border: 1px solid #333; border-radius: 12px; background: #111; color: #eee; }
+#project-guide h2 { font-size: clamp(1.35rem, 3vw, 1.8rem); font-weight: 700; }
+#project-guide h3 { font-size: 1rem; font-weight: 700; }
+#project-guide p { margin: .55rem 0 0; color: #bcbcbc; line-height: 1.65; font-size: 1rem; overflow-wrap: anywhere; }
+.project-guide-topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: .85rem; margin: 1.15rem 0; }
+.project-guide-topics article { padding: 1rem; background: #171717; border: 1px solid #333; border-radius: 8px; }
+#project-guide .project-guide-status { padding: .75rem 1rem; border-inline-start: 2px solid #ed5252; }
+.project-guide-links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; }
+.project-guide-links a { color: #f19a9a; text-decoration: underline; }
+
+.kyvexa-logo { width: 1.65rem; height: 1.65rem; object-fit: contain; border-radius: 4px; }
+.kyvexa-ca { color: inherit; font-size: .75rem; white-space: nowrap; }
+header [hidden], footer [hidden] { display: none !important; }
+
+:root {
+  --color-ink: #0b0808;
+  --color-ink-2: #14100d;
+  --color-ink-3: #1c1510;
+  --color-ink-4: #281d13;
+  --color-fg: #fff2cf;
+  --color-fg-2: #e5d0a0;
+  --color-mute: #c2ae84;
+  --color-dim: #a89979;
+  --color-line: #3d301d;
+  --color-line-2: #5d4521;
+  --color-signal: #ffd600;
+  --color-signal-hi: #ff9800;
+  --color-signal-lo: #3c2608;
+}
+#project-guide { background: var(--color-ink-2); border-color: var(--color-line); color: var(--color-fg); }
+#project-guide p { color: var(--color-mute); }
+.project-guide-topics article { background: var(--color-ink-3); border-color: var(--color-line); }
+#project-guide .project-guide-status { border-color: var(--color-signal-hi); }
+.project-guide-links a, .kyvexa-ca { color: var(--color-signal); }
+.btn-primary, .btn-primary:hover { color: var(--color-ink); }
