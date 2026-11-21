@@ -358,16 +358,16 @@
     const existingFields = [...document.querySelectorAll('main canvas.pointer-events-none')];
     existingFields.forEach((canvas, index) => drawBackground(canvas, index));
 
-    if (!document.querySelector('main canvas.absolute + div > svg[width="96"]')) return;
-    const sections = [...document.querySelectorAll('main > section')];
-    for (const section of sections.slice(1)) {
+    const marked = [...document.querySelectorAll('main > section[data-kyvexa-pixels]')];
+    const sections = marked.length || !document.querySelector('main > section#technology')
+      ? marked : [...document.querySelectorAll('main > section')].slice(1);
+    for (const section of sections) {
       if (section.querySelector('canvas')) continue;
       const canvas = document.createElement('canvas');
       canvas.setAttribute('aria-hidden', 'true');
-      canvas.className = 'pointer-events-none h-full w-full';
       Object.assign(section.style, { position: 'relative', isolation: 'isolate' });
-      canvas.style.zIndex = '-1';
-      section.prepend(canvas);
+      Object.assign(canvas.style, { pointerEvents: 'none', width: '100%', height: '100%', zIndex: '2' });
+      section.append(canvas);
       drawBackground(canvas, 0, true);
     }
   }
