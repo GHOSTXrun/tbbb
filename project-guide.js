@@ -86,8 +86,8 @@
     }
     const icon = document.querySelector('link[rel="icon"]') || document.head.appendChild(document.createElement('link'));
     icon.rel = 'icon';
-    icon.type = 'image/png';
-    icon.href = new URL('kyvexa-logo.png', site).href;
+    icon.type = 'image/svg+xml';
+    icon.href = new URL('icon.svg?v=transparent', site).href;
     const home = document.querySelector('header a[aria-label$=" home"]');
     home?.setAttribute('aria-label', 'KYVEXA home');
     for (const area of [home, document.querySelector('footer')]) {

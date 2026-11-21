@@ -13,10 +13,10 @@
 header [hidden], footer [hidden] { display: none !important; }
 
 :root {
-  --color-ink: #0b0808;
-  --color-ink-2: #14100d;
-  --color-ink-3: #1c1510;
-  --color-ink-4: #281d13;
+  --color-ink: #070707;
+  --color-ink-2: #0e0e0e;
+  --color-ink-3: #151515;
+  --color-ink-4: #1c1c1c;
   --color-fg: #fff2cf;
   --color-fg-2: #e5d0a0;
   --color-mute: #c2ae84;

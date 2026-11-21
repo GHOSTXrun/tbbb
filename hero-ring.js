@@ -111,13 +111,13 @@
       });
 
       const fade = context.createLinearGradient(0, 0, width, 0);
-      fade.addColorStop(0, '#0b0808');
-      fade.addColorStop(0.12, '#0b080800');
-      fade.addColorStop(0.88, '#0b080800');
-      fade.addColorStop(1, '#0b0808');
+      fade.addColorStop(0, '#070707');
+      fade.addColorStop(0.12, '#07070700');
+      fade.addColorStop(0.88, '#07070700');
+      fade.addColorStop(1, '#070707');
       context.fillStyle = fade;
       context.fillRect(0, 0, width, height);
-      context.fillStyle = 'rgba(11,8,8,.92)';
+      context.fillStyle = 'rgba(7,7,7,.92)';
       context.beginPath();
       context.arc(x, y, radius * 0.42, 0, turn);
       context.fill();
