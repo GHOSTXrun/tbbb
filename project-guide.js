@@ -106,6 +106,12 @@
     }
     for (const button of document.querySelectorAll('header button')) {
       if (!button.textContent.trim().startsWith('CA:')) continue;
+      if (button.title && button.title !== 'H6y5mDHewKBtGeDVdpNemTqpN7zH9mrTw9FfDbiwpump' &&
+          /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(button.title)) {
+        button.classList.remove('hidden');
+        button.classList.add('kyvexa-ca', 'inline-flex');
+        continue;
+      }
       const label = document.createElement('span');
       label.className = 'kyvexa-ca';
       label.translate = false;
@@ -178,11 +184,14 @@
     const label = document.querySelector('header .kyvexa-ca');
     if (!label || label.tagName === 'BUTTON') return;
     try {
-      const url = new URL('ca.json', site);
-      url.searchParams.set('v', String(Math.floor(Date.now() / 12000)));
-      const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-      if (!response.ok) throw new Error('CA configuration unavailable');
-      const { address } = await response.json();
+      let address = label.dataset.kyvexaContract;
+      if (!address) {
+        const url = new URL('ca.json', site);
+        url.searchParams.set('v', String(Math.floor(Date.now() / 12000)));
+        const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+        if (!response.ok) throw new Error('CA configuration unavailable');
+        ({ address } = await response.json());
+      }
       if (typeof address === 'string' && /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
         const button = document.createElement('button');
         button.type = 'button';
