@@ -238,16 +238,16 @@
       }
     }
 
-    function drawBackground(original, index) {
+    function drawBackground(original, index, added = false) {
       const initialWidth = original.width;
       const initialHeight = original.height;
-      if (original.hasAttribute('width') || original.hasAttribute('height')) return;
-      const canvas = original.cloneNode();
+      if (!added && (original.hasAttribute('width') || original.hasAttribute('height'))) return;
+      const canvas = added ? original : original.cloneNode();
       const context = canvas.getContext('2d');
       if (!context) return;
-      canvas.dataset.kyvexaPixelField = 'fallback';
+      canvas.dataset.kyvexaPixelField = added ? 'section' : 'fallback';
       Object.assign(canvas.style, { position: 'absolute', inset: '0' });
-      original.before(canvas);
+      if (!added) original.before(canvas);
       const cell = index === 0 ? 14 : 12;
       const density = index === 0 ? 0.06 : 0.1;
       let columns = 0;
@@ -257,6 +257,7 @@
       let scale = 1;
       let tick = 0;
       let frame = 0;
+      let activeInViewport = !added;
       let point;
       let previous;
 
@@ -318,16 +319,31 @@
           }
           context.fillRect(position % columns * cell + 2, Math.floor(position / columns) * cell + 2, cell - 4, cell - 4);
         }
-        if (!reducedMotion) frame = requestAnimationFrame(render);
+        if (!reducedMotion && activeInViewport) frame = requestAnimationFrame(render);
       }
 
       const resizeObserver = new ResizeObserver(resize);
       resizeObserver.observe(canvas);
       if (!reducedMotion) {
         window.addEventListener('pointermove', move, { passive: true });
-        frame = requestAnimationFrame(render);
+        if (added) {
+          const viewport = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting === activeInViewport) return;
+            activeInViewport = entry.isIntersecting;
+            if (activeInViewport) frame = requestAnimationFrame(render);
+            else {
+              cancelAnimationFrame(frame);
+              point = previous = undefined;
+              energy.fill(0);
+            }
+          });
+          viewport.observe(canvas);
+        } else {
+          frame = requestAnimationFrame(render);
+        }
       }
       resize();
+      if (added) return;
       const monitor = setInterval(() => {
         if (original.isConnected && original.width === initialWidth && original.height === initialHeight &&
             !original.hasAttribute('width') && !original.hasAttribute('height')) return;
@@ -339,7 +355,21 @@
       }, 1500);
     }
 
-    [...document.querySelectorAll('main canvas.pointer-events-none')].forEach(drawBackground);
+    const existingFields = [...document.querySelectorAll('main canvas.pointer-events-none')];
+    existingFields.forEach((canvas, index) => drawBackground(canvas, index));
+
+    if (!document.querySelector('main canvas.absolute + div > svg[width="96"]')) return;
+    const sections = [...document.querySelectorAll('main > section')];
+    for (const section of sections.slice(1)) {
+      if (section.querySelector('canvas')) continue;
+      const canvas = document.createElement('canvas');
+      canvas.setAttribute('aria-hidden', 'true');
+      canvas.className = 'pointer-events-none h-full w-full';
+      Object.assign(section.style, { position: 'relative', isolation: 'isolate' });
+      canvas.style.zIndex = '-1';
+      section.prepend(canvas);
+      drawBackground(canvas, 0, true);
+    }
   }
 
   // Give the original React effects the first chance to start.
